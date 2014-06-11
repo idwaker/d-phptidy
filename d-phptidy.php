@@ -104,6 +104,8 @@ $fix_docblock_format = true;
 $fix_docblock_space = false;
 $add_blank_lines = true;
 $indent = true;
+$fix_operator_whitespace = true;
+//$clean_arrowop_whitespace = true;
 
 ///////////// END OF DEFAULT CONFIGURATION ////////////////
 
@@ -442,6 +444,8 @@ function phptidy( $source ) {
 	if ( $GLOBALS['fix_separation_whitespace'] ) fix_separation_whitespace( $tokens );
 	if ( $GLOBALS['fix_comma_space'] ) fix_comma_space( $tokens );
 	if ( $GLOBALS['fix_round_bracket_space'] ) fix_round_bracket_space( $tokens );
+        if ( $GLOBALS['fix_operator_whitespace'] ) fix_operator_whitespace( $tokens );
+        //if ( $GLOBALS['clean_arrowop_whitespace'] ) clean_arrowop_whitespace( $tokens );
 
 	// PhpDocumentor
 	if ( $GLOBALS['add_doctags'] ) {
@@ -1225,6 +1229,109 @@ function fix_round_bracket_space( &$tokens ) {
 	}
 }
 
+
+/**
+ * Add single whitespace around operator
+ *
+ * @param array   $tokens (reference)
+ */
+function fix_operator_whitespace( &$tokens ) {
+    
+    $spaceCandidates = array();
+    foreach ( $tokens as $key => &$token ) {
+        if ( is_string($token) ) {
+            switch ($token) {
+                // airthmetic
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                case "%":
+                // assignment
+                case "=":
+                // bitwise
+                case "&":
+                case "|":
+                case "^":
+                // comparision
+                case ">":
+                case "<":
+                // string
+                case ".":
+                    // ... if no whitespace after this token then add one
+                    if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
+			// Insert one space
+                        array_push($spaceCandidates, $key+1);
+			//array_splice( $tokens, $key+1, 0, array(
+			//		array( T_WHITESPACE, " " )
+			//	) );
+                    }
+                    // ... if no whitespace before this token add one
+                    if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
+			// Insert one space
+                        array_push($spaceCandidates, $key-1);
+			//array_splice( $tokens, $key-1, 0, array(
+			//		array( T_WHITESPACE, " " )
+			//	) );
+                    }
+                    break;
+            }
+        }
+        else {
+            switch ($token[0]) {
+                // airthmetic
+                case T_PLUS_EQUAL:
+                case T_MINUS_EQUAL:
+                case T_MUL_EQUAL:
+                case T_DIV_EQUAL:
+                case T_MOD_EQUAL:
+                case T_AND_EQUAL:
+                case T_OR_EQUAL:
+                case T_XOR_EQUAL:
+                // bitwise
+                case T_SL:
+                case T_SR:
+                // comparision
+                case T_IS_EQUAL:
+                case T_IS_IDENTICAL:
+                case T_IS_NOT_EQUAL:
+                case T_IS_NOT_IDENTICAL:
+                case T_BOOLEAN_AND:
+                case T_BOOLEAN_OR:
+                // string
+                case T_CONCAT_EQUAL:
+                // =>
+                case T_DOUBLE_ARROW:
+                // ->
+                //case T_OBJECT_OPERATOR:
+                    // if no whitespace after this token add one
+                    if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
+			// Insert one space
+                        array_push($spaceCandidates, $key+1);
+			//array_splice( $tokens, $key+1, 0, array(
+			//		array( T_WHITESPACE, " " )
+			//	) );
+                    }
+                    // ... if no whitespace before this token add one
+                    if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
+			// Insert one space
+                        array_push($spaceCandidates, $key-1);
+			//array_splice( $tokens, $key-1, 0, array(
+			//		array( T_WHITESPACE, " " )
+			//	) );
+                    }
+                    break;
+            }
+        }
+    }
+    
+    // now add the spaces
+    foreach ($spaceCandidates as $idx => $position) {
+        array_splice( $tokens, $position + $idx, 0, array(
+					array( T_WHITESPACE, " " )
+				) );
+    }
+}
 
 /**
  * Fixes the format of a DocBlock
