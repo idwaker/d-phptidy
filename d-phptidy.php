@@ -1240,7 +1240,7 @@ function fix_round_bracket_space( &$tokens ) {
  */
 function fix_operator_whitespace( &$tokens ) {
     
-    $spaceCandidates = array();
+    $candidates = array();
     foreach ( $tokens as $key => &$token ) {
         if ( is_string($token) ) {
             switch ($token) {
@@ -1264,12 +1264,12 @@ function fix_operator_whitespace( &$tokens ) {
                     // ... if no whitespace after this token then add one
                     if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
 			// Insert one space
-                        array_push($spaceCandidates, $key+1);
+                        array_push($candidates, $key+1);
                     }
                     // ... if no whitespace before this token add one
                     if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
 			// Insert one space
-                        array_push($spaceCandidates, $key-1);
+                        array_push($candidates, $key-1);
                     }
                     break;
             }
@@ -1304,12 +1304,12 @@ function fix_operator_whitespace( &$tokens ) {
                     // if no whitespace after this token add one
                     if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
 			// Insert one space
-                        array_push($spaceCandidates, $key+1);
+                        array_push($candidates, $key+1);
                     }
                     // ... if no whitespace before this token add one
                     if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
 			// Insert one space
-                        array_push($spaceCandidates, $key-1);
+                        array_push($candidates, $key-1);
                     }
                     break;
             }
@@ -1317,7 +1317,7 @@ function fix_operator_whitespace( &$tokens ) {
     }
     
     // now add the spaces
-    foreach ($spaceCandidates as $idx => $position) {
+    foreach ($candidates as $idx => $position) {
         array_splice( $tokens, $position + $idx, 0, array(
 					array( T_WHITESPACE, " " )
 				) );
@@ -1330,21 +1330,21 @@ function fix_operator_whitespace( &$tokens ) {
  * @param array   $tokens (reference)
  */
 function clean_arrowop_whitespace( &$tokens ) {
-    $cleanCandidates = array();
+    $candidates = array();
     foreach ( $tokens as $key => &$token ) {
         if (is_string($token)) continue;
         switch ($token[0]) {
             case T_OBJECT_OPERATOR:
                 if (( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
-                    array_push($cleanCandidates, $key-1);
+                    array_push($candidates, $key-1);
                 }
                 if (( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
-                    array_push($cleanCandidates, $key+1);
+                    array_push($candidates, $key+1);
                 }
                 break;
         }
     }
-    clean_op_whitespace($tokens, $cleanCandidates);
+    clean_op_whitespace($tokens, $candidates);
 }
 
 /**
@@ -1353,21 +1353,21 @@ function clean_arrowop_whitespace( &$tokens ) {
  * @param array   $tokens (reference)
  */
 function clean_doublecolonop_whitespace( &$tokens ) {
-    $cleanCandidates = array();
+    $candidates = array();
     foreach ( $tokens as $key => &$token ) {
         if (is_string($token)) continue;
         switch ($token[0]) {
             case T_DOUBLE_COLON:
                 if (( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
-                    array_push($cleanCandidates, $key-1);
+                    array_push($candidates, $key-1);
                 }
                 if (( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
-                    array_push($cleanCandidates, $key+1);
+                    array_push($candidates, $key+1);
                 }
                 break;
         }
     }
-    clean_op_whitespace($tokens, $cleanCandidates);
+    clean_op_whitespace($tokens, $candidates);
 }
 
 /**
