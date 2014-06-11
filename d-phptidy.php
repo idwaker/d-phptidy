@@ -105,7 +105,8 @@ $fix_docblock_space = false;
 $add_blank_lines = true;
 $indent = true;
 $fix_operator_whitespace = true;
-//$clean_arrowop_whitespace = true;
+$clean_arrowop_whitespace = true;
+$clean_doublecolonop_whitespace = true;
 
 ///////////// END OF DEFAULT CONFIGURATION ////////////////
 
@@ -445,7 +446,9 @@ function phptidy( $source ) {
 	if ( $GLOBALS['fix_comma_space'] ) fix_comma_space( $tokens );
 	if ( $GLOBALS['fix_round_bracket_space'] ) fix_round_bracket_space( $tokens );
         if ( $GLOBALS['fix_operator_whitespace'] ) fix_operator_whitespace( $tokens );
-        //if ( $GLOBALS['clean_arrowop_whitespace'] ) clean_arrowop_whitespace( $tokens );
+        if ( $GLOBALS['clean_arrowop_whitespace'] ) clean_arrowop_whitespace( $tokens );
+        if ( $GLOBALS['clean_doublecolonop_whitespace'] ) clean_doublecolonop_whitespace( $tokens );
+
 
 	// PhpDocumentor
 	if ( $GLOBALS['add_doctags'] ) {
@@ -1262,17 +1265,11 @@ function fix_operator_whitespace( &$tokens ) {
                     if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
 			// Insert one space
                         array_push($spaceCandidates, $key+1);
-			//array_splice( $tokens, $key+1, 0, array(
-			//		array( T_WHITESPACE, " " )
-			//	) );
                     }
                     // ... if no whitespace before this token add one
                     if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
 			// Insert one space
                         array_push($spaceCandidates, $key-1);
-			//array_splice( $tokens, $key-1, 0, array(
-			//		array( T_WHITESPACE, " " )
-			//	) );
                     }
                     break;
             }
@@ -1308,17 +1305,11 @@ function fix_operator_whitespace( &$tokens ) {
                     if (!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
 			// Insert one space
                         array_push($spaceCandidates, $key+1);
-			//array_splice( $tokens, $key+1, 0, array(
-			//		array( T_WHITESPACE, " " )
-			//	) );
                     }
                     // ... if no whitespace before this token add one
                     if (!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
 			// Insert one space
                         array_push($spaceCandidates, $key-1);
-			//array_splice( $tokens, $key-1, 0, array(
-			//		array( T_WHITESPACE, " " )
-			//	) );
                     }
                     break;
             }
@@ -1329,6 +1320,66 @@ function fix_operator_whitespace( &$tokens ) {
     foreach ($spaceCandidates as $idx => $position) {
         array_splice( $tokens, $position + $idx, 0, array(
 					array( T_WHITESPACE, " " )
+				) );
+    }
+}
+
+/**
+ * Cleanup whitespace surrounding arrow -> operator
+ * 
+ * @param array   $tokens (reference)
+ */
+function clean_arrowop_whitespace( &$tokens ) {
+    $cleanCandidates = array();
+    foreach ( $tokens as $key => &$token ) {
+        if (is_string($token)) continue;
+        switch ($token[0]) {
+            case T_OBJECT_OPERATOR:
+                if (( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
+                    array_push($cleanCandidates, $key-1);
+                }
+                if (( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
+                    array_push($cleanCandidates, $key+1);
+                }
+                break;
+        }
+    }
+    clean_op_whitespace($tokens, $cleanCandidates);
+}
+
+/**
+ * Cleanup whitespace surrounding Double Colon :: operator
+ * 
+ * @param array   $tokens (reference)
+ */
+function clean_doublecolonop_whitespace( &$tokens ) {
+    $cleanCandidates = array();
+    foreach ( $tokens as $key => &$token ) {
+        if (is_string($token)) continue;
+        switch ($token[0]) {
+            case T_DOUBLE_COLON:
+                if (( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE )) {
+                    array_push($cleanCandidates, $key-1);
+                }
+                if (( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE )) {
+                    array_push($cleanCandidates, $key+1);
+                }
+                break;
+        }
+    }
+    clean_op_whitespace($tokens, $cleanCandidates);
+}
+
+/**
+ * Cleanup whitespace surrounding method access operators
+ * 
+ * @param array $tokens (reference)
+ * @param array $candidates set of whitespace to replace 
+ */
+function clean_op_whitespace( &$tokens, $candidates ) {
+    foreach ($candidates as $idx) {
+        array_splice( $tokens, $idx, 1, array(
+					array( T_EMPTY, '' )
 				) );
     }
 }
