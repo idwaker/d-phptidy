@@ -60,13 +60,13 @@ $default_package = "";
 // If you indent with spaces you can use as much spaces as you like.
 // Useful values: "\t" for indenting with tabs,
 //                "  " for indenting with two spaces
-$indent_char = "\t";
+$indent_char = "    ";
 
 // Control structures with the opening curly brace on a new line
 // Examples: false                      always on the same line
 //           true                       always on a new line
 //           array(T_CLASS, T_FUNCTION) for PEAR Coding Standards
-$curly_brace_newline = false;
+$curly_brace_newline = array(T_CLASS, T_FUNCTION);
 
 // PHP open tag
 // All php open tags will be replaced by the here defined kind of open tag.
@@ -102,7 +102,7 @@ $add_function_docblocks = false;
 $add_doctags = false;
 $fix_docblock_format = true;
 $fix_docblock_space = false;
-$add_blank_lines = false;
+$add_blank_lines = true;
 $indent = true;
 
 ///////////// END OF DEFAULT CONFIGURATION ////////////////
@@ -1188,7 +1188,7 @@ function fix_comma_space( &$tokens ) {
 }
 
 /**
- * Adds one space after a round bracket
+ * remove space after a round bracket
  *
  * @param array   $tokens (reference)
  */
@@ -1200,26 +1200,26 @@ function fix_round_bracket_space( &$tokens ) {
 			// If the current token is a start round bracket...
 			$token === "(" and
 			// ...and the next token is no whitespace
-			!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE ) and
+			( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === T_WHITESPACE ) and
 			// ...and the next token is not an end round bracket
 			!( isset( $tokens[$key+1][0] ) and $tokens[$key+1][0] === ')' )
 		) {
 			// Insert one space
-			array_splice( $tokens, $key+1, 0, array(
-					array( T_WHITESPACE, " " )
+			array_splice( $tokens, $key+1, 1, array(
+					array( T_EMPTY, '' )
 				) );
 		}
 		else if (
 			// If the current token is an end round bracket...
 			$token === ")" and
 			// ...and the previous token is no whitespace
-			!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE ) and
+			( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === T_WHITESPACE ) and
 			// ...and the previous token is a start round bracket
 			!( isset( $tokens[$key-1][0] ) and $tokens[$key-1][0] === '(' )
 		) {
 			// Insert one space
-			array_splice( $tokens, $key, 0, array(
-					array( T_WHITESPACE, " " )
+			array_splice( $tokens, $key-1, 1, array(
+					array( T_EMPTY, '' )
 				) );
 		}
 	}
@@ -1349,7 +1349,7 @@ function fix_docblock_space( &$tokens ) {
 
 
 /**
- * Adds 2 blank lines after functions and classes
+ * Adds 1 blank lines after functions and classes
  *
  * @param array   $tokens (reference)
  */
@@ -1399,9 +1399,9 @@ function add_blank_lines( &$tokens ) {
 				// At least 2 blank lines after a function or class
 				if (
 					$tokens[$key+1][0] === T_WHITESPACE and
-					substr( $tokens[$key+1][1], 0, 2 ) != "\n\n\n"
+					substr( $tokens[$key+1][1], 0, 2 ) != "\n\n"
 				) {
-					$tokens[$key+1][1] = preg_replace( "/^([ \t]*\n){1,3}/", "\n\n\n", $tokens[$key+1][1] );
+					$tokens[$key+1][1] = preg_replace( "/^([ \t]*\n){1,3}/", "\n\n", $tokens[$key+1][1] );
 				}
 
 			}
