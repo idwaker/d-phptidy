@@ -13,3 +13,38 @@ $ wp-phptidy.php replace some-file.php
 ```
 
 Complete documentation can be found on the phptidy home page: http://phptidy.berlios.de/
+
+Modified to use spaces and code as below
+
+class MyClass extends SomeClass
+{
+    function __construct($arg1, $arg2)
+    {
+        // do something
+    }
+    
+    function doJob($arg)
+    {
+        foreach ($variable as $vari) {
+            if ($vari == 1) {
+                // do this
+            }
+            elseif ($vari == 2) {
+                // do another
+            }
+            else {
+                // do new
+            }
+        }
+        
+        do {
+            // this is do loop
+        } while ($check);
+        
+        while ($check) {
+            // this is while loop
+        }
+        
+        $array = array('Apple', 'Banana', 'Carrot');
+    }
+}
