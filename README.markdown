@@ -16,35 +16,35 @@ Complete documentation can be found on the phptidy home page: http://phptidy.ber
 
 Modified to use spaces and code as below
 
-class MyClass extends SomeClass
-{
-    function __construct($arg1, $arg2)
+    class MyClass extends SomeClass
     {
-        // do something
-    }
-    
-    function doJob($arg)
-    {
-        foreach ($variable as $vari) {
-            if ($vari == 1) {
-                // do this
-            }
-            elseif ($vari == 2) {
-                // do another
-            }
-            else {
-                // do new
-            }
+        function __construct($arg1, $arg2)
+        {
+            // do something
         }
         
-        do {
-            // this is do loop
-        } while ($check);
-        
-        while ($check) {
-            // this is while loop
+        function doJob($arg)
+        {
+            foreach ($variable as $vari) {
+                if ($vari == 1) {
+                    // do this
+                }
+                elseif ($vari == 2) {
+                    // do another
+                }
+                else {
+                    // do new
+                }
+            }
+            
+            do {
+                // this is do loop
+            } while ($check);
+            
+            while ($check) {
+                // this is while loop
+            }
+            
+            $array = array('Apple', 'Banana', 'Carrot');
         }
-        
-        $array = array('Apple', 'Banana', 'Carrot');
     }
-}
