@@ -1557,7 +1557,7 @@ function add_blank_lines( &$tokens ) {
 
                                 // At least 2 blank lines after a function or class
                                 if (
-                                        $tokens[$key+1][0] === T_WHITESPACE and
+                                    ( isset( $tokens[$key+1][0] ) && $tokens[$key+1][0] === T_WHITESPACE) and
                                         substr( $tokens[$key+1][1], 0, 2 ) != "\n\n"
                                 ) {
                                         $tokens[$key+1][1] = preg_replace( "/^([ \t]*\n){1,3}/", "\n\n", $tokens[$key+1][1] );
